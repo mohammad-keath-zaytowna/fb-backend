@@ -70,7 +70,7 @@ const schemas = {
       'any.only': 'Passwords must match',
       'any.required': 'Confirm password is required'
     }),
-    role: Joi.string().valid('customer', 'admin').optional()
+    role: Joi.string().valid('user', 'admin').optional()
   }),
 
   updateUserStatus: Joi.object({
@@ -176,8 +176,8 @@ const schemas = {
     phoneNumber: Joi.string().required().messages({
       'any.required': 'Phone number is required'
     }),
-    customerName: Joi.string().required().messages({
-      'any.required': 'Customer name is required'
+    userName: Joi.string().required().messages({
+      'any.required': 'User name is required'
     })
   }),
 
@@ -216,7 +216,7 @@ const schemas = {
     category: Joi.string().allow('').optional(),
     startDate: Joi.date().optional(),
     endDate: Joi.date().optional(),
-    customer: Joi.string().allow('').optional(),
+    user: Joi.string().allow('').optional(),
     user: Joi.string().allow('').optional(),
     name: Joi.string().allow('').optional()
   }),

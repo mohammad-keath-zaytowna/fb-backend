@@ -105,7 +105,7 @@ All user endpoints require Bearer token authentication.
   "email": "jane@example.com",
   "password": "password123",
   "confirmPassword": "password123",
-  "role": "customer"
+  "role": "user"
 }
 ```
 
@@ -187,7 +187,7 @@ All user endpoints require Bearer token authentication.
 
 ### 🛒 Orders (Authenticated)
 
-#### 1. Create Order (Customer Only)
+#### 1. Create Order (User Only)
 - **Method:** `POST`
 - **URL:** `{{base_url}}/api/orders/cart`
 - **Body:**
@@ -208,7 +208,7 @@ All user endpoints require Bearer token authentication.
   "discount": 0,
   "notes": "Please handle with care",
   "phoneNumber": "+1234567890",
-  "customerName": "John Doe"
+  "userName": "John Doe"
 }
 ```
 
@@ -276,7 +276,7 @@ All user endpoints require Bearer token authentication.
 4. **Get Products** - Test public endpoint
 5. **Create Product** - Test authenticated endpoint
 6. **Get Users** - Test admin endpoint
-7. **Create Order** - Test customer endpoint
+7. **Create Order** - Test user endpoint
 8. **Update Order Status** - Test admin endpoint
 
 ## Response Format

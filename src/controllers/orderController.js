@@ -6,8 +6,8 @@ const catchAsync = require('../utils/catchAsync');
 
 /**
  * @route   POST /cart
- * @desc    Create new order (customer)
- * @access  Private (customer)
+ * @desc    Create new order (user)
+ * @access  Private (user)
  */
 exports.createOrder = catchAsync(async (req, res) => {
   // Validate products exist and are active
@@ -41,7 +41,7 @@ exports.createOrder = catchAsync(async (req, res) => {
 
 /**
  * @route   GET /orders
- * @desc    Get orders (customer sees own, admin sees all)
+ * @desc    Get orders (user sees own, admin sees all)
  * @access  Private
  */
 exports.getOrders = catchAsync(async (req, res) => {
@@ -57,8 +57,8 @@ exports.getOrders = catchAsync(async (req, res) => {
 
   // Admin filters
   if (isAdmin) {
-    if (req.query.customer) {
-      queryObj.user = req.query.customer;
+    if (req.query.user) {
+      queryObj.user = req.query.user;
     }
     if (req.query.user) {
       queryObj.createdByAdmin = req.query.user;
@@ -71,7 +71,7 @@ exports.getOrders = catchAsync(async (req, res) => {
 
   // Apply API features
   const features = new ApiFeatures(baseQuery, req.query)
-    .search(['customerName', 'phoneNumber'])
+    .search(['userName', 'phoneNumber'])
     .filter()
     .dateRange('createdAt')
     .sort();
@@ -81,7 +81,7 @@ exports.getOrders = catchAsync(async (req, res) => {
   // Get total count
   const totalQuery = Order.find(queryObj);
   const totalFeatures = new ApiFeatures(totalQuery, req.query)
-    .search(['customerName', 'phoneNumber'])
+    .search(['userName', 'phoneNumber'])
     .filter()
     .dateRange('createdAt');
   const total = await totalFeatures.query.countDocuments();

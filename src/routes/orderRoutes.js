@@ -9,10 +9,10 @@ const router = express.Router();
 // All order routes require authentication
 router.use(auth);
 
-// POST /cart - Create order (customer)
+// POST /cart - Create order (user)
 router.post(
   '/cart',
-  permitRoles('customer'),
+  permitRoles('user'),
   validate(schemas.createOrder),
   orderController.createOrder
 );

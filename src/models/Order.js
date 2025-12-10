@@ -61,9 +61,9 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Phone number is required']
     },
-    customerName: {
+    userName: {
       type: String,
-      required: [true, 'Customer name is required']
+      required: [true, 'User name is required']
     },
     status: {
       type: String,
@@ -84,7 +84,7 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ user: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
-orderSchema.index({ customerName: 'text', phoneNumber: 'text' });
+orderSchema.index({ userName: 'text', phoneNumber: 'text' });
 
 orderSchema.set('toJSON', {
   transform: (doc, ret) => {

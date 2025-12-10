@@ -31,18 +31,18 @@ exports.getAdmins = catchAsync(async (req, res) => {
   const admins = await features.query;
 
   // Calculate statistics for each admin
-  // Note: This is a simplified interpretation where we count all customers
-  // In a real scenario, you might have a relationship between admins and customers
+  // Note: This is a simplified interpretation where we count all users
+  // In a real scenario, you might have a relationship between admins and users
   const adminsWithStats = await Promise.all(
     admins.map(async (admin) => {
       const adminObj = admin.toJSON();
 
-      // Count all customers (interpretation: total users in system)
-      const numberOfUsers = await User.countDocuments({ role: 'customer' });
+      // Count all users (interpretation: total users in system)
+      const numberOfUsers = await User.countDocuments({ role: 'user' });
 
-      // Count active customers
+      // Count active users
       const numberOfCurrentActiveUsers = await User.countDocuments({
-        role: 'customer',
+        role: 'user',
         status: 'active'
       });
 

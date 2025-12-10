@@ -25,7 +25,7 @@ router.get(
 router.post(
   '/',
   auth,
-  permitRoles('admin', 'customer'),
+  permitRoles('admin', 'user'),
   upload.single('image'),
   (req, res, next) => {
     // Skip image validation if file is uploaded

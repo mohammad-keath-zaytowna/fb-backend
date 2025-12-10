@@ -28,7 +28,7 @@
 							"host": ["{{base_url}}"],
 							"path": ["api", "auth", "signup"]
 						},
-						"description": "Register a new customer account"
+						"description": "Register a new user account"
 					},
 					"response": []
 				},
@@ -191,7 +191,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"role\": \"customer\"\n}"
+							"raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"role\": \"user\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/users",
@@ -508,14 +508,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"items\": [\n    {\n      \"prod_id\": \"{{product_id}}\",\n      \"count\": 2,\n      \"size\": \"M\",\n      \"color\": \"red\",\n      \"price\": 99.99\n    }\n  ],\n  \"address\": \"123 Main St, City, Country\",\n  \"shipping\": 10.00,\n  \"total\": 209.98,\n  \"discount\": 0,\n  \"notes\": \"Please handle with care\",\n  \"phoneNumber\": \"+1234567890\",\n  \"customerName\": \"John Doe\"\n}"
+							"raw": "{\n  \"items\": [\n    {\n      \"prod_id\": \"{{product_id}}\",\n      \"count\": 2,\n      \"size\": \"M\",\n      \"color\": \"red\",\n      \"price\": 99.99\n    }\n  ],\n  \"address\": \"123 Main St, City, Country\",\n  \"shipping\": 10.00,\n  \"total\": 209.98,\n  \"discount\": 0,\n  \"notes\": \"Please handle with care\",\n  \"phoneNumber\": \"+1234567890\",\n  \"userName\": \"John Doe\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/orders/cart",
 							"host": ["{{base_url}}"],
 							"path": ["api", "orders", "cart"]
 						},
-						"description": "Create a new order (Customer only)"
+						"description": "Create a new order (User only)"
 					},
 					"response": []
 				},

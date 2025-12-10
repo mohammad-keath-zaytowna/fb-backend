@@ -47,7 +47,7 @@ const sendEmail = async (email, otp) => {
 
 /**
  * @route   POST /signup
- * @desc    Register new customer (public)
+ * @desc    Register new user (public)
  * @access  Public
  */
 exports.signup = catchAsync(async (req, res) => {
@@ -64,12 +64,12 @@ exports.signup = catchAsync(async (req, res) => {
     return ApiResponse.error(res, 'Email already exists', null, 400);
   }
 
-  // Create customer user
+  // Create user user
   const user = await User.create({
     name,
     email,
     password,
-    role: 'customer', // Always customer for public signup
+    role: 'user', // Always user for public signup
     status: 'active'
   });
 

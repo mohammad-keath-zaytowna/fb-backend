@@ -76,7 +76,7 @@ exports.createUser = catchAsync(async (req, res) => {
 
   if (userType === 'admin') {
     userData.managerId = req.user._id;
-    userData.role = 'customer';
+    userData.role = 'user';
   } else if (userType === 'superAdmin') {
     userData.role = 'admin';
   }
@@ -89,7 +89,7 @@ exports.createUser = catchAsync(async (req, res) => {
 
   // Set default role if not provided
   if (!userData.role) {
-    userData.role = 'customer';
+    userData.role = 'user';
   }
 
   const user = await User.create(userData);

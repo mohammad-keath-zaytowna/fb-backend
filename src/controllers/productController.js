@@ -19,7 +19,7 @@ exports.getProducts = catchAsync(async (req, res) => {
   if (req.user.role === 'admin') {
     queryObj.admin = req.user._id;
   }
-  if (req.user.role === 'customer') {
+  if (req.user.role === 'user') {
     queryObj.admin = req.user.managerId;
   }
 
@@ -77,7 +77,7 @@ exports.getProductById = catchAsync(async (req, res) => {
 exports.createProduct = catchAsync(async (req, res) => {
   const productData = { ...req.body };
   const userRole = req.user.role;
-  if (userRole === 'customer') {
+  if (userRole === 'user') {
     productData.admin = req.user.managerId;
   } else {
     productData.admin = req.user._id;
@@ -135,7 +135,7 @@ exports.updateProduct = catchAsync(async (req, res) => {
   if (!product) {
     return ApiResponse.error(res, 'Product not found', null, 404);
   }
-  if (userRole === 'customer') {
+  if (userRole === 'user') {
     if (product.admin.toString() !== req.user.managerId.toString()) {
       return ApiResponse.error(res, 'You are not authorized to update this product', null, 403);
     }

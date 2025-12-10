@@ -5,7 +5,7 @@ const schemas = require("../validations/schemas");
 
 const router = express.Router();
 
-// POST /signup - Register new customer (PUBLIC)
+// POST /signup - Register new user (PUBLIC)
 router.post("/signup", validate(schemas.signup), authController.signup);
 
 // POST /login - Login (PUBLIC)
