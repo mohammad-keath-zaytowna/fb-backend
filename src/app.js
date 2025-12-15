@@ -22,23 +22,25 @@ const allowedOrigins = [
 
 app.use(cors({
   origin(origin, callback) {
-    // Allow mobile apps / curl / Postman (no Origin header or null)
+    // Allow mobile / tools (no Origin or null)
     if (!origin || origin === 'null') {
       return callback(null, true);
     }
 
-    // Allow only your web domains in browsers
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    // Reject everything else
     return callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
+// Important: this must be BEFORE your routes
+app.options('*', cors());   // handle preflight for all routes
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
