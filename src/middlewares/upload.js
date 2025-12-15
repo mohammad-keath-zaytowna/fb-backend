@@ -1,48 +1,35 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const multer = require("multer");
+const { v2: cloudinary } = require("cloudinary");
+const { Readable } = require("stream");
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+function bufferToStream(buffer) {
+  const readable = new Readable();
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
 }
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate unique filename: timestamp-random-originalname
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, `${name}-${uniqueSuffix}${ext}`);
-  }
-});
+const cloudinaryUpload = (req, res, next) => {
+  if (!req.file) return next();
 
-// File filter - only images
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const uploadStream = cloudinary.uploader.upload_stream(
+    { folder: "products" }, // customize folder
+    (error, result) => {
+      if (error) return next(error);
+      req.cloudinaryResult = result;
+      next();
+    }
+  );
 
-  if (mimetype && extname) {
-    return cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'));
-  }
+  bufferToStream(req.file.buffer).pipe(uploadStream);
 };
 
-// Configure multer
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  },
-  fileFilter: fileFilter
-});
-
-module.exports = upload;
-
+module.exports = { upload, cloudinaryUpload };

@@ -15,7 +15,30 @@ const app = express();
 
 // Middleware
 app.use(morgan('dev'));
-app.use(cors());
+const allowedOrigins = [
+  'https://munjiz-jo.online',
+  'https://www.munjiz-jo.online'
+];
+
+app.use(cors({
+  origin(origin, callback) {
+    // Allow mobile apps / curl / Postman (no Origin header or null)
+    if (!origin || origin === 'null') {
+      return callback(null, true);
+    }
+
+    // Allow only your web domains in browsers
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Reject everything else
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

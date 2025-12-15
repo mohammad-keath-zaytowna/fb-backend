@@ -1,7 +1,7 @@
-const Product = require('../models/Product');
-const ApiResponse = require('../utils/apiResponse');
-const ApiFeatures = require('../utils/apiFeatures');
-const catchAsync = require('../utils/catchAsync');
+const Product = require("../models/Product");
+const ApiResponse = require("../utils/apiResponse");
+const ApiFeatures = require("../utils/apiFeatures");
+const catchAsync = require("../utils/catchAsync");
 
 /**
  * @route   GET /products
@@ -13,13 +13,13 @@ exports.getProducts = catchAsync(async (req, res) => {
   const queryObj = {};
 
   // Non-admin users can only see active products
-  if (!req.user || !['admin', 'superAdmin'].includes(req.user.role)) {
-    queryObj.status = 'active';
+  if (!req.user || !["admin", "superAdmin"].includes(req.user.role)) {
+    queryObj.status = "active";
   }
-  if (req.user.role === 'admin') {
+  if (req.user.role === "admin") {
     queryObj.admin = req.user._id;
   }
-  if (req.user.role === 'user') {
+  if (req.user.role === "user") {
     queryObj.admin = req.user.managerId;
   }
 
@@ -27,7 +27,7 @@ exports.getProducts = catchAsync(async (req, res) => {
 
   // Apply API features
   const features = new ApiFeatures(baseQuery, req.query)
-    .search(['name', 'description'])
+    .search(["name", "description"])
     .filter()
     .sort();
 
@@ -36,7 +36,7 @@ exports.getProducts = catchAsync(async (req, res) => {
   // Get total count
   const totalQuery = Product.find(queryObj);
   const totalFeatures = new ApiFeatures(totalQuery, req.query)
-    .search(['name', 'description'])
+    .search(["name", "description"])
     .filter();
   const total = await totalFeatures.query.countDocuments();
 
@@ -49,7 +49,12 @@ exports.getProducts = catchAsync(async (req, res) => {
     total
   );
 
-  return ApiResponse.success(res, 'Products retrieved successfully', { products }, meta);
+  return ApiResponse.success(
+    res,
+    "Products retrieved successfully",
+    { products },
+    meta
+  );
 });
 
 /**
@@ -63,10 +68,12 @@ exports.getProductById = catchAsync(async (req, res) => {
   const product = await Product.findById(id);
 
   if (!product) {
-    return ApiResponse.error(res, 'Product not found', null, 404);
+    return ApiResponse.error(res, "Product not found", null, 404);
   }
 
-  return ApiResponse.success(res, 'Product retrieved successfully', { product });
+  return ApiResponse.success(res, "Product retrieved successfully", {
+    product,
+  });
 });
 
 /**
@@ -77,26 +84,26 @@ exports.getProductById = catchAsync(async (req, res) => {
 exports.createProduct = catchAsync(async (req, res) => {
   const productData = { ...req.body };
   const userRole = req.user.role;
-  if (userRole === 'user') {
+  if (userRole === "user") {
     productData.admin = req.user.managerId;
   } else {
     productData.admin = req.user._id;
   }
 
   // If file is uploaded, use the file path, otherwise use the image URL from body
-  if (req.file) {
-    productData.image = `/uploads/${req.file.filename}`;
+  if (req.cloudinaryResult) {
+    productData.image = req.cloudinaryResult?.secure_url;
   }
 
   // Parse colors and sizes if they are strings
-  if (typeof productData.colors === 'string') {
+  if (typeof productData.colors === "string") {
     try {
       productData.colors = JSON.parse(productData.colors);
     } catch (e) {
       productData.colors = productData.colors ? [productData.colors] : [];
     }
   }
-  if (typeof productData.sizes === 'string') {
+  if (typeof productData.sizes === "string") {
     try {
       productData.sizes = JSON.parse(productData.sizes);
     } catch (e) {
@@ -113,7 +120,7 @@ exports.createProduct = catchAsync(async (req, res) => {
 
   return ApiResponse.success(
     res,
-    'Product created successfully',
+    "Product created successfully",
     { product },
     null,
     201
@@ -131,29 +138,38 @@ exports.updateProduct = catchAsync(async (req, res) => {
   const product = await Product.findById(id);
   const userRole = req.user.role;
 
-
   if (!product) {
-    return ApiResponse.error(res, 'Product not found', null, 404);
+    return ApiResponse.error(res, "Product not found", null, 404);
   }
-  if (userRole === 'user') {
+  if (userRole === "user") {
     if (product.admin.toString() !== req.user.managerId.toString()) {
-      return ApiResponse.error(res, 'You are not authorized to update this product', null, 403);
+      return ApiResponse.error(
+        res,
+        "You are not authorized to update this product",
+        null,
+        403
+      );
     }
   } else {
     if (product.admin.toString() !== req.user._id.toString()) {
-      return ApiResponse.error(res, 'You are not authorized to update this product', null, 403);
+      return ApiResponse.error(
+        res,
+        "You are not authorized to update this product",
+        null,
+        403
+      );
     }
   }
 
   const updateData = { ...req.body };
 
   // If file is uploaded, use the file path, otherwise keep existing image or use URL from body
-  if (req.file) {
-    updateData.image = `/uploads/${req.file.filename}`;
+  if (req.cloudinaryResult) {
+    updateData.image = req.cloudinaryResult?.secure_url;
   }
 
   // Parse colors and sizes if they are strings
-  if (typeof updateData.colors === 'string') {
+  if (typeof updateData.colors === "string") {
     try {
       updateData.colors = JSON.parse(updateData.colors);
     } catch (e) {
@@ -162,7 +178,7 @@ exports.updateProduct = catchAsync(async (req, res) => {
       }
     }
   }
-  if (typeof updateData.sizes === 'string') {
+  if (typeof updateData.sizes === "string") {
     try {
       updateData.sizes = JSON.parse(updateData.sizes);
     } catch (e) {
@@ -180,7 +196,7 @@ exports.updateProduct = catchAsync(async (req, res) => {
   Object.assign(product, updateData);
   await product.save();
 
-  return ApiResponse.success(res, 'Product updated successfully', { product });
+  return ApiResponse.success(res, "Product updated successfully", { product });
 });
 
 /**
@@ -195,13 +211,15 @@ exports.updateProductStatus = catchAsync(async (req, res) => {
   const product = await Product.findById(id);
 
   if (!product) {
-    return ApiResponse.error(res, 'Product not found', null, 404);
+    return ApiResponse.error(res, "Product not found", null, 404);
   }
 
   product.status = status;
   await product.save();
 
-  return ApiResponse.success(res, 'Product status updated successfully', { product });
+  return ApiResponse.success(res, "Product status updated successfully", {
+    product,
+  });
 });
 
 /**
@@ -215,12 +233,18 @@ exports.deleteProduct = catchAsync(async (req, res) => {
   const product = await Product.findById(id);
 
   if (!product) {
-    return ApiResponse.error(res, 'Product not found', null, 404);
+    return ApiResponse.error(res, "Product not found", null, 404);
   }
 
   // Soft delete
-  product.status = 'deleted';
+  product.status = "deleted";
   await product.save();
 
-  return ApiResponse.success(res, 'Product deleted successfully', null, null, 200);
+  return ApiResponse.success(
+    res,
+    "Product deleted successfully",
+    null,
+    null,
+    200
+  );
 });

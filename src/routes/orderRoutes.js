@@ -12,7 +12,7 @@ router.use(auth);
 // POST /cart - Create order (user)
 router.post(
   '/cart',
-  permitRoles('user'),
+  // permitRoles('user'),
   validate(schemas.createOrder),
   orderController.createOrder
 );

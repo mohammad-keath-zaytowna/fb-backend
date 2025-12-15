@@ -1,32 +1,33 @@
-const express = require('express');
-const productController = require('../controllers/productController');
-const { auth, permitRoles } = require('../middlewares/auth');
-const validate = require('../middlewares/validate');
-const schemas = require('../validations/schemas');
-const upload = require('../middlewares/upload');
+const express = require("express");
+const productController = require("../controllers/productController");
+const { auth, permitRoles } = require("../middlewares/auth");
+const validate = require("../middlewares/validate");
+const schemas = require("../validations/schemas");
+const { upload, cloudinaryUpload } = require("../middlewares/upload");
 
 const router = express.Router();
 
 // Public routes
 router.get(
-  '/',
+  "/",
   auth,
-  validate(schemas.pagination, 'query'),
+  validate(schemas.pagination, "query"),
   productController.getProducts
 );
 
 router.get(
-  '/:id',
-  validate(schemas.mongoId, 'params'),
+  "/:id",
+  validate(schemas.mongoId, "params"),
   productController.getProductById
 );
 
 // Admin only routes
 router.post(
-  '/',
+  "/",
   auth,
-  permitRoles('admin', 'user'),
-  upload.single('image'),
+  permitRoles("admin", "user"),
+  upload.single("image"),
+  cloudinaryUpload,
   (req, res, next) => {
     // Skip image validation if file is uploaded
     if (req.file) {
@@ -37,15 +38,20 @@ router.post(
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,
-      allowUnknown: true
+      allowUnknown: true,
     });
 
     if (error) {
       const errors = error.details.map((detail) => ({
-        field: detail.path.join('.'),
-        message: detail.message
+        field: detail.path.join("."),
+        message: detail.message,
       }));
-      return require('../utils/apiResponse').error(res, 'Validation failed', errors, 400);
+      return require("../utils/apiResponse").error(
+        res,
+        "Validation failed",
+        errors,
+        400
+      );
     }
 
     req.body = value;
@@ -55,11 +61,12 @@ router.post(
 );
 
 router.patch(
-  '/:id',
+  "/:id",
   auth,
-  permitRoles('admin', 'superAdmin'),
-  validate(schemas.mongoId, 'params'),
-  upload.single('image'),
+  permitRoles("admin", "superAdmin"),
+  validate(schemas.mongoId, "params"),
+  upload.single("image"),
+  cloudinaryUpload,
   (req, res, next) => {
     // Skip image validation if file is uploaded
     if (req.file) {
@@ -70,15 +77,20 @@ router.patch(
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,
-      allowUnknown: true
+      allowUnknown: true,
     });
 
     if (error) {
       const errors = error.details.map((detail) => ({
-        field: detail.path.join('.'),
-        message: detail.message
+        field: detail.path.join("."),
+        message: detail.message,
       }));
-      return require('../utils/apiResponse').error(res, 'Validation failed', errors, 400);
+      return require("../utils/apiResponse").error(
+        res,
+        "Validation failed",
+        errors,
+        400
+      );
     }
 
     req.body = value;
@@ -88,19 +100,19 @@ router.patch(
 );
 
 router.patch(
-  '/:id/status',
+  "/:id/status",
   auth,
-  permitRoles('admin', 'superAdmin'),
-  validate(schemas.mongoId, 'params'),
+  permitRoles("admin", "superAdmin"),
+  validate(schemas.mongoId, "params"),
   validate(schemas.updateProductStatus),
   productController.updateProductStatus
 );
 
 router.delete(
-  '/product/:id',
+  "/product/:id",
   auth,
-  permitRoles('admin', 'superAdmin'),
-  validate(schemas.mongoId, 'params'),
+  permitRoles("admin", "superAdmin"),
+  validate(schemas.mongoId, "params"),
   productController.deleteProduct
 );
 

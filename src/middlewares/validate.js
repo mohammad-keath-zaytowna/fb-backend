@@ -1,25 +1,26 @@
-const ApiResponse = require('../utils/apiResponse');
+const ApiResponse = require("../utils/apiResponse");
 
 /**
  * Validation middleware factory
  * @param {Object} schema - Joi validation schema
  * @param {String} property - Property to validate (body, query, params)
  */
-const validate = (schema, property = 'body') => {
+const validate = (schema, property = "body") => {
   return (req, res, next) => {
     const { error, value } = schema.validate(req[property], {
       abortEarly: false,
-      stripUnknown: true
+      stripUnknown: true,
     });
+    console.log("error", error);
 
     if (error) {
       const errors = error.details.map((detail) => ({
-        field: detail.path.join('.'),
-        message: detail.message
+        field: detail.path.join("."),
+        message: detail.message,
       }));
       console.log(errors);
 
-      return ApiResponse.error(res, 'Validation failed', errors, 400);
+      return ApiResponse.error(res, "Validation failed", errors, 400);
     }
 
     // Replace request property with validated value
