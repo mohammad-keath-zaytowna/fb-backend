@@ -38,9 +38,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Important: this must be BEFORE your routes
-app.options('*', cors());   // handle preflight for all routes
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
