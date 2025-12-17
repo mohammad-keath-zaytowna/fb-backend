@@ -17,7 +17,8 @@ const app = express();
 app.use(morgan('dev'));
 const allowedOrigins = [
   'https://munjiz-jo.online',
-  'https://www.munjiz-jo.online'
+  'https://www.munjiz-jo.online',
+  'http://localhost:3000',
 ];
 
 app.use(cors({

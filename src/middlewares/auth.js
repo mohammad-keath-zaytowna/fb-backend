@@ -74,4 +74,34 @@ const permitRoles = (...roles) => {
   };
 };
 
-module.exports = { auth, permitRoles };
+/**
+ * User ownership middleware
+ * Verifies that admin can only modify users they manage
+ */
+const checkUserOwnership = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const targetUser = await User.findById(id);
+
+    if (!targetUser) {
+      return ApiResponse.error(res, 'User not found', null, 404);
+    }
+
+    // SuperAdmin can modify any user
+    if (req.user.role === 'superAdmin') {
+      return next();
+    }
+
+    // Admin can only modify users they manage
+    if (req.user.role === 'admin' &&
+        targetUser.managerId?.toString() !== req.user._id.toString()) {
+      return ApiResponse.error(res, 'You can only modify users you manage', null, 403);
+    }
+
+    next();
+  } catch (error) {
+    return ApiResponse.error(res, error.message, null, 500);
+  }
+};
+
+module.exports = { auth, permitRoles, checkUserOwnership };

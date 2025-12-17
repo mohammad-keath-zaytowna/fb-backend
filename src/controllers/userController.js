@@ -145,3 +145,24 @@ exports.deleteUser = catchAsync(async (req, res) => {
 
   return ApiResponse.success(res, 'User deleted successfully', null, null, 200);
 });
+
+/**
+ * @route   PATCH /users/:id/password
+ * @desc    Update user password (admin/superAdmin)
+ * @access  Private (admin, superAdmin)
+ */
+exports.updateUserPassword = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return ApiResponse.error(res, 'User not found', null, 404);
+  }
+
+  user.password = newPassword; // Will be hashed by pre-save hook
+  await user.save();
+
+  return ApiResponse.success(res, 'Password updated successfully');
+});

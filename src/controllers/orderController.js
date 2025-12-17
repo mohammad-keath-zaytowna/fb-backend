@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const ApiResponse = require('../utils/apiResponse');
 const ApiFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
@@ -41,27 +42,31 @@ exports.createOrder = catchAsync(async (req, res) => {
 
 /**
  * @route   GET /orders
- * @desc    Get orders (user sees own, admin sees all)
+ * @desc    Get orders (user sees own, admin sees their managed users' orders, superAdmin sees all)
  * @access  Private
  */
 exports.getOrders = catchAsync(async (req, res) => {
   // Build base query
   const queryObj = {};
 
-  const isAdmin = req.user && ['admin', 'superAdmin'].includes(req.user.role);
-
-  // If not admin, only show user's own orders
-  if (!isAdmin) {
+  // If regular user, only show their own orders
+  if (req.user.role === 'user') {
     queryObj.user = req.user._id;
-  }
+  } else if (req.user.role === 'admin') {
+    // Admin only sees orders from users they manage
+    const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
+    const managedUserIds = managedUsers.map(u => u._id);
 
-  // Admin filters
-  if (isAdmin) {
+    // If query has specific user filter, validate it's a managed user
     if (req.query.user) {
       queryObj.user = req.query.user;
+    } else {
+      queryObj.user = { $in: [req.user._id, ...managedUserIds] };
     }
+  } else if (req.user.role === 'superAdmin') {
+    // SuperAdmin sees all orders, can filter by user if specified
     if (req.query.user) {
-      queryObj.createdByAdmin = req.query.user;
+      queryObj.user = req.query.user;
     }
   }
 

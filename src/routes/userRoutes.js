@@ -1,6 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
-const { auth, permitRoles } = require('../middlewares/auth');
+const { auth, permitRoles, checkUserOwnership } = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
 const schemas = require('../validations/schemas');
 
@@ -32,6 +32,15 @@ router.delete(
   '/:id',
   validate(schemas.mongoId, 'params'),
   userController.deleteUser
+);
+
+// PATCH /users/:id/password - Update user password
+router.patch(
+  '/:id/password',
+  validate(schemas.mongoId, 'params'),
+  validate(schemas.updateUserPassword),
+  checkUserOwnership,
+  userController.updateUserPassword
 );
 
 module.exports = router;
