@@ -27,9 +27,16 @@ exports.createOrder = catchAsync(async (req, res) => {
     );
   }
 
-  // Create order with user ID
+  // Calculate total from items, shipping, and discount
+  const subtotal = req.body.items.reduce((sum, item) => sum + (item.price * item.count), 0);
+  const shipping = req.body.shipping || 0;
+  const discount = req.body.discount || 0;
+  const calculatedTotal = Math.max(0, subtotal + shipping - discount);
+
+  // Create order with user ID and calculated total
   const order = await Order.create({
     ...req.body,
+    total: calculatedTotal,
     user: req.user._id
   });
 
