@@ -13,6 +13,13 @@ router.use(permitRoles('admin', 'superAdmin'));
 // GET /users - List users
 router.get('/', validate(schemas.pagination, 'query'), userController.getUsers);
 
+// PATCH /users/currency - Update current user's currency (MUST be before /:id routes)
+router.patch(
+  '/currency',
+  validate(schemas.updateCurrency),
+  userController.updateCurrency
+);
+
 // GET /users/:id - Get user by id
 router.get('/:id', validate(schemas.mongoId, 'params'), userController.getUser);
 
@@ -50,13 +57,6 @@ router.patch(
   validate(schemas.updateUserPassword),
   checkUserOwnership,
   userController.updateUserPassword
-);
-
-// PATCH /users/currency - Update current user's currency
-router.patch(
-  '/currency',
-  validate(schemas.updateCurrency),
-  userController.updateCurrency
 );
 
 module.exports = router;
