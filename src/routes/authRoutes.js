@@ -25,4 +25,8 @@ router.patch(
   authController.resetPassword
 );
 
+// GET /me - Get current user data (PRIVATE)
+const { auth } = require("../middlewares/auth");
+router.get("/me", auth, authController.getCurrentUser);
+
 module.exports = router;

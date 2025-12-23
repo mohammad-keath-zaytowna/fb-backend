@@ -212,9 +212,11 @@ exports.updateCurrency = catchAsync(async (req, res) => {
   }
 
   // Only admins and superAdmins can set currency
-  if (!['admin', 'superAdmin'].includes(user.role)) {
+  if (!['admin'].includes(user.role)) {
     return ApiResponse.error(res, 'Only admins can set currency preference', null, 403);
   }
+
+  await User.updateMany({ managerId: req.user._id }, { currency })
 
   user.currency = currency;
   await user.save();

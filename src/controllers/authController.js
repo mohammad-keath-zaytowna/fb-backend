@@ -219,3 +219,18 @@ exports.resetPassword = catchAsync(async (req, res) => {
 
   return ApiResponse.success(res, 'Password reset successfully', null, null, 200);
 });
+
+/**
+ * @route   GET /me
+ * @desc    Get current user data
+ * @access  Private
+ */
+exports.getCurrentUser = catchAsync(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    return ApiResponse.error(res, 'User not found', null, 404);
+  }
+
+  return ApiResponse.success(res, 'User data retrieved successfully', { user }, null, 200);
+});
