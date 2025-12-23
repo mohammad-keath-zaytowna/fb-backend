@@ -5,7 +5,7 @@ const {
     getAllAdminSubscriptions,
     updateAdminExpiry,
 } = require("../controllers/subscriptionController");
-const { protect, restrictTo } = require("../middlewares/auth");
+const { auth: protect, permitRoles: restrictTo } = require("../middlewares/auth");
 
 // Get current user's subscription status
 router.get("/status", protect, getSubscriptionStatus);
