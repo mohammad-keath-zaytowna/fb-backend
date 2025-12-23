@@ -126,6 +126,36 @@ exports.updateUserStatus = catchAsync(async (req, res) => {
 });
 
 /**
+ * @route   PATCH /users/:id
+ * @desc    Update user fields (admin can update own settings, superAdmin can update any)
+ * @access  Private (admin, superAdmin)
+ */
+exports.updateUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const updateData = { ...req.body };
+
+  const user = await User.findById(id);
+  if (!user) return ApiResponse.error(res, 'User not found', null, 404);
+
+  // Only allow admin to update their own record, or superAdmin to update any
+  if (req.user.role === 'admin' && req.user._id.toString() !== id) {
+    return ApiResponse.error(res, 'Not authorized to update this user', null, 403);
+  }
+
+  // Only allow whitelisted fields to be updated
+  const allowed = ['name', 'maxManagedUsers', 'is_general_products', 'currency'];
+  allowed.forEach((field) => {
+    if (field in updateData) {
+      user[field] = updateData[field];
+    }
+  });
+
+  await user.save();
+
+  return ApiResponse.success(res, 'User updated successfully', { user });
+});
+
+/**
  * @route   DELETE /user/:id
  * @desc    Delete user (soft delete)
  * @access  Private (admin, superAdmin)
@@ -165,4 +195,29 @@ exports.updateUserPassword = catchAsync(async (req, res) => {
   await user.save();
 
   return ApiResponse.success(res, 'Password updated successfully');
+});
+
+/**
+ * @route   PATCH /users/currency
+ * @desc    Update current user's currency preference
+ * @access  Private (admin, superAdmin)
+ */
+exports.updateCurrency = catchAsync(async (req, res) => {
+  const { currency } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    return ApiResponse.error(res, 'User not found', null, 404);
+  }
+
+  // Only admins and superAdmins can set currency
+  if (!['admin', 'superAdmin'].includes(user.role)) {
+    return ApiResponse.error(res, 'Only admins can set currency preference', null, 403);
+  }
+
+  user.currency = currency;
+  await user.save();
+
+  return ApiResponse.success(res, 'Currency updated successfully', { user });
 });

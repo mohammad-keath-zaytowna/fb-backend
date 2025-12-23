@@ -48,6 +48,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
+    is_general_products: {
+      type: Boolean,
+      default: true,
+    },
+    currency: {
+      type: String,
+      enum: ["USD", "JOD", "SP"],
+      default: "USD",
+    },
   },
   {
     timestamps: true,

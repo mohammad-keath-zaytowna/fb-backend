@@ -93,10 +93,15 @@ const checkUserOwnership = async (req, res, next) => {
     }
 
     // Admin can only modify users they manage
-    if (req.user.role === 'admin' &&
-        targetUser.managerId?.toString() !== req.user._id.toString()) {
-      return ApiResponse.error(res, 'You can only modify users you manage', null, 403);
-    }
+      // Admin can modify users they manage or themselves
+      if (req.user.role === 'admin') {
+        if (targetUser._id.toString() === req.user._id.toString()) {
+          return next();
+        }
+        if (targetUser.managerId?.toString() !== req.user._id.toString()) {
+          return ApiResponse.error(res, 'You can only modify users you manage', null, 403);
+        }
+      }
 
     next();
   } catch (error) {

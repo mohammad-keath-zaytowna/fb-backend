@@ -60,15 +60,21 @@ exports.getOrders = catchAsync(async (req, res) => {
   if (req.user.role === 'user') {
     queryObj.user = req.user._id;
   } else if (req.user.role === 'admin') {
-    // Admin only sees orders from users they manage
-    const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
-    const managedUserIds = managedUsers.map(u => u._id);
-
-    // If query has specific user filter, validate it's a managed user
-    if (req.query.user) {
-      queryObj.user = req.query.user;
+    // Admin visibility depends on `is_general_products` flag
+    if (req.user.is_general_products === false) {
+      // Admin only sees orders they created
+      queryObj.createdByAdmin = req.user._id;
     } else {
-      queryObj.user = { $in: [req.user._id, ...managedUserIds] };
+      // Admin sees orders from users they manage and themselves
+      const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
+      const managedUserIds = managedUsers.map(u => u._id);
+
+      // If query has specific user filter, validate it's a managed user
+      if (req.query.user) {
+        queryObj.user = req.query.user;
+      } else {
+        queryObj.user = { $in: [req.user._id, ...managedUserIds] };
+      }
     }
   } else if (req.user.role === 'superAdmin') {
     // SuperAdmin sees all orders, can filter by user if specified
@@ -164,3 +170,63 @@ exports.updateOrderStatus = catchAsync(async (req, res) => {
 
   return ApiResponse.success(res, 'Order status updated successfully', { order });
 });
+
+/**
+ * @route   PATCH /order/:id
+ * @desc    Update order (full update)
+ * @access  Private (admin, superAdmin)
+ */
+exports.updateOrder = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { items, address, shipping, discount, notes, userName, phoneNumber, status } = req.body;
+
+  const order = await Order.findById(id);
+
+  if (!order) {
+    return ApiResponse.error(res, 'Order not found', null, 404);
+  }
+
+  // Update fields if provided
+  if (items) {
+    // Validate products exist and are active
+    const productIds = items.map((item) => item.prod_id);
+    const products = await Product.find({
+      _id: { $in: productIds },
+      status: { $ne: 'deleted' }
+    });
+
+    if (products.length !== productIds.length) {
+      return ApiResponse.error(
+        res,
+        'One or more products are not available',
+        null,
+        400
+      );
+    }
+
+    order.items = items;
+  }
+
+  if (address !== undefined) order.address = address;
+  if (shipping !== undefined) order.shipping = shipping;
+  if (discount !== undefined) order.discount = discount;
+  if (notes !== undefined) order.notes = notes;
+  if (userName !== undefined) order.userName = userName;
+  if (phoneNumber !== undefined) order.phoneNumber = phoneNumber;
+  if (status !== undefined) order.status = status;
+
+  // Recalculate total
+  const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.count), 0);
+  const shippingCost = order.shipping || 0;
+  const discountAmount = order.discount || 0;
+  order.total = Math.max(0, subtotal + shippingCost - discountAmount);
+
+  await order.save();
+
+  await order.populate('user', 'name email');
+  await order.populate('items.prod_id', 'name image');
+  await order.populate('createdByAdmin', 'name email');
+
+  return ApiResponse.success(res, 'Order updated successfully', { order });
+});
+

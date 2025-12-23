@@ -27,6 +27,15 @@ router.patch(
   userController.updateUserStatus
 );
 
+// PATCH /users/:id - Update user fields (name, maxManagedUsers, is_general_products)
+router.patch(
+  '/:id',
+  validate(schemas.mongoId, 'params'),
+  validate(schemas.updateUser),
+  checkUserOwnership,
+  userController.updateUser
+);
+
 // DELETE /user/:id - Delete user
 router.delete(
   '/:id',
@@ -41,6 +50,13 @@ router.patch(
   validate(schemas.updateUserPassword),
   checkUserOwnership,
   userController.updateUserPassword
+);
+
+// PATCH /users/currency - Update current user's currency
+router.patch(
+  '/currency',
+  validate(schemas.updateCurrency),
+  userController.updateCurrency
 );
 
 module.exports = router;

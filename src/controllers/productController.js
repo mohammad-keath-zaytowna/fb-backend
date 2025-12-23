@@ -12,15 +12,36 @@ exports.getProducts = catchAsync(async (req, res) => {
   // Build base query
   const queryObj = {};
 
-  // Non-admin users can only see active products
+  // Non-admin users can see active and inactive products, but not deleted ones
   if (!req.user || !["admin", "superAdmin"].includes(req.user.role)) {
-    queryObj.status = "active";
+    queryObj.status = { $ne: "deleted" };
   }
-  if (req.user.role === "admin") {
-    queryObj.admin = req.user._id;
-  }
-  if (req.user.role === "user") {
-    queryObj.admin = req.user.managerId;
+  // Role-based visibility with per-admin `is_general_products` flag
+  if (req.user) {
+    if (req.user.role === "admin") {
+      // If admin disabled general products, show only products created by this admin
+      if (req.user.is_general_products === false) {
+        queryObj.createdBy = req.user._id;
+      } else {
+        // default: show products for this admin
+        queryObj.admin = req.user._id;
+      }
+    }
+
+    if (req.user.role === "user") {
+      // Find manager settings
+      const manager = req.user.managerId
+        ? await require("../models/User").findById(req.user.managerId).select("is_general_products")
+        : null;
+
+      if (manager && manager.is_general_products === false) {
+        // manager disallowed general products -> each user sees only products they created
+        queryObj.createdBy = req.user._id;
+      } else if (req.user.managerId) {
+        // default: show manager products
+        queryObj.admin = req.user.managerId;
+      }
+    }
   }
 
   const baseQuery = Product.find(queryObj);
@@ -89,6 +110,8 @@ exports.createProduct = catchAsync(async (req, res) => {
   } else {
     productData.admin = req.user._id;
   }
+  // Track actual creator
+  productData.createdBy = req.user._id;
 
   // If file is uploaded, use the file path, otherwise use the image URL from body
   if (req.cloudinaryResult) {

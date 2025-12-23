@@ -91,6 +91,20 @@ const schemas = {
     })
   }),
 
+  updateUser: Joi.object({
+    name: Joi.string().optional(),
+    maxManagedUsers: Joi.number().integer().min(0).optional(),
+    is_general_products: Joi.boolean().optional(),
+    currency: Joi.string().valid('USD', 'JOD', 'SP').optional()
+  }),
+
+  updateCurrency: Joi.object({
+    currency: Joi.string().valid('USD', 'JOD', 'SP').required().messages({
+      'any.only': 'Currency must be USD, JOD, or SP',
+      'any.required': 'Currency is required'
+    })
+  }),
+
   // ============ PRODUCT SCHEMAS ============
   createProduct: Joi.object({
     name: Joi.string().required().messages({
@@ -200,6 +214,29 @@ const schemas = {
         'any.only': 'Invalid status value',
         'any.required': 'Status is required'
       })
+  }),
+
+  updateOrder: Joi.object({
+    items: Joi.array()
+      .items(
+        Joi.object({
+          prod_id: Joi.string().required(),
+          count: Joi.number().integer().min(1).required(),
+          size: Joi.string().optional(),
+          color: Joi.string().optional(),
+          price: Joi.number().min(0).required()
+        })
+      )
+      .optional(),
+    address: Joi.string().optional(),
+    shipping: Joi.number().min(0).optional(),
+    discount: Joi.number().min(0).optional(),
+    notes: Joi.string().allow('').optional(),
+    phoneNumber: Joi.string().optional(),
+    userName: Joi.string().optional(),
+    status: Joi.string()
+      .valid('pending', 'paid', 'shipped', 'completed', 'cancelled')
+      .optional()
   }),
 
   // ============ ADMIN SCHEMAS ============
