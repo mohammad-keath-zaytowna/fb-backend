@@ -9,6 +9,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -53,6 +54,7 @@ app.use('/api/orders/', orderRoutes);
 app.use('/api/super-admin/', superAdminRoutes);
 app.use('/api/upload/', uploadRoutes);
 app.use('/api/stats/', statsRoutes);
+app.use('/api/subscription/', subscriptionRoutes);
 
 // 404 handler
 app.use((req, res) => {

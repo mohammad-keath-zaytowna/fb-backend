@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema(
       enum: ["USD", "JOD", "SP"],
       default: "USD",
     },
+    subscriptionExpiryDate: {
+      type: Date,
+      default: null, // null means no expiry (for superAdmin and regular users)
+    },
   },
   {
     timestamps: true,

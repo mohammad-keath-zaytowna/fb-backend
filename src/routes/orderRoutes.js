@@ -43,7 +43,7 @@ router.patch(
 // PATCH /order/:id - Update order (admin only)
 router.patch(
   '/:id',
-  permitRoles('admin', 'superAdmin'),
+  permitRoles('admin', 'user'),
   validate(schemas.mongoId, 'params'),
   validate(schemas.updateOrder),
   orderController.updateOrder
