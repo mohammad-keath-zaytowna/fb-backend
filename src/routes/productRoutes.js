@@ -27,7 +27,7 @@ router.post(
   auth,
   permitRoles("admin", "user"),
   upload.single("image"),
-  compressImage,
+  // compressImage,
   cloudinaryUpload,
   (req, res, next) => {
     // Skip image validation if file is uploaded
@@ -67,7 +67,7 @@ router.patch(
   permitRoles("admin", "superAdmin"),
   validate(schemas.mongoId, "params"),
   upload.single("image"),
-  compressImage,
+  // compressImage,
   cloudinaryUpload,
   (req, res, next) => {
     // Skip image validation if file is uploaded
