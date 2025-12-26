@@ -59,22 +59,21 @@ exports.getOrders = catchAsync(async (req, res) => {
   // If regular user, only show their own orders
   if (req.user.role === 'user') {
     queryObj.user = req.user._id;
-  } else if (req.user.role === 'admin') {
-    // Admin visibility depends on `is_general_products` flag
-    if (req.user.is_general_products === false) {
+    if (!req.user.is_general_products) {
       // Admin only sees orders they created
       queryObj.createdByAdmin = req.user._id;
-    } else {
-      // Admin sees orders from users they manage and themselves
-      const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
-      const managedUserIds = managedUsers.map(u => u._id);
+    }
+  } else if (req.user.role === 'admin') {
+    // Admin visibility depends on `is_general_products` flag
+    // Admin sees orders from users they manage and themselves
+    const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
+    const managedUserIds = managedUsers.map(u => u._id);
 
-      // If query has specific user filter, validate it's a managed user
-      if (req.query.user) {
-        queryObj.user = req.query.user;
-      } else {
-        queryObj.user = { $in: [req.user._id, ...managedUserIds] };
-      }
+    // If query has specific user filter, validate it's a managed user
+    if (req.query.user) {
+      queryObj.user = req.query.user;
+    } else {
+      queryObj.user = { $in: [req.user._id, ...managedUserIds] };
     }
   } else if (req.user.role === 'superAdmin') {
     // SuperAdmin sees all orders, can filter by user if specified

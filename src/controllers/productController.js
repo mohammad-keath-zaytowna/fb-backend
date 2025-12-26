@@ -20,12 +20,9 @@ exports.getProducts = catchAsync(async (req, res) => {
   if (req.user) {
     if (req.user.role === "admin") {
       // If admin disabled general products, show only products created by this admin
-      if (req.user.is_general_products === false) {
-        queryObj.createdBy = req.user._id;
-      } else {
-        // default: show products for this admin
-        queryObj.admin = req.user._id;
-      }
+      // default: show products for this admin
+      queryObj.admin = req.user._id;
+
     }
 
     if (req.user.role === "user") {
@@ -34,7 +31,7 @@ exports.getProducts = catchAsync(async (req, res) => {
         ? await require("../models/User").findById(req.user.managerId).select("is_general_products")
         : null;
 
-      if (manager && manager.is_general_products === false) {
+      if (manager && !manager.is_general_products) {
         // manager disallowed general products -> each user sees only products they created
         queryObj.createdBy = req.user._id;
       } else if (req.user.managerId) {

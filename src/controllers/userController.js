@@ -150,6 +150,11 @@ exports.updateUser = catchAsync(async (req, res) => {
     }
   });
 
+  if (userType === 'admin' && updateData.is_general_products) {
+    await User.updateMany({ managerId: req.user._id }, { is_general_products: updateData.is_general_products })
+  }
+
+
   await user.save();
 
   return ApiResponse.success(res, 'User updated successfully', { user });
