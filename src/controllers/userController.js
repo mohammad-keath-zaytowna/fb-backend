@@ -134,6 +134,8 @@ exports.updateUser = catchAsync(async (req, res) => {
   const { id } = req.params;
   const updateData = { ...req.body };
 
+  const userType = req.user.role;
+
   const user = await User.findById(id);
   if (!user) return ApiResponse.error(res, 'User not found', null, 404);
 
