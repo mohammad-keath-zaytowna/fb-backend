@@ -94,8 +94,8 @@ const schemas = {
   updateUser: Joi.object({
     name: Joi.string().optional(),
     maxManagedUsers: Joi.number().integer().min(0).optional(),
-    is_general_products: Joi.boolean().optional(),
-    currency: Joi.string().valid('USD', 'JOD', 'SP').optional()
+    currency: Joi.string().valid('USD', 'JOD', 'SP').optional(),
+    canSeeAllOrders: Joi.boolean().optional()
   }),
 
   updateCurrency: Joi.object({
@@ -129,6 +129,11 @@ const schemas = {
     sizes: Joi.alternatives().try(
       Joi.array().items(Joi.string()),
       Joi.string()
+    ).optional(),
+    visibleToUsers: Joi.alternatives().try(
+      Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)),
+      Joi.array().length(0),  // Explicitly allow empty array
+      Joi.string().allow('')
     ).optional()
   }),
 
@@ -149,7 +154,12 @@ const schemas = {
       Joi.array().items(Joi.string()),
       Joi.string()
     ).optional(),
-    status: Joi.string().valid('active', 'inactive', 'deleted').optional()
+    status: Joi.string().valid('active', 'inactive', 'deleted').optional(),
+    visibleToUsers: Joi.alternatives().try(
+      Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)),
+      Joi.array().length(0),  // Explicitly allow empty array
+      Joi.string().allow('')
+    ).optional()
   }),
 
   updateProductStatus: Joi.object({

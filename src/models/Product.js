@@ -46,6 +46,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       enum: ['active', 'inactive', 'deleted'],
       default: 'active'
+    },
+    visibleToUsers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'User',
+      default: []
     }
   },
   {
@@ -58,6 +63,7 @@ productSchema.index({ name: 'text', description: 'text' });
 productSchema.index({ category: 1 });
 productSchema.index({ status: 1 });
 productSchema.index({ price: 1 });
+productSchema.index({ admin: 1, visibleToUsers: 1 });
 
 productSchema.set('toJSON', {
   transform: (doc, ret) => {

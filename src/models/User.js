@@ -48,10 +48,6 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
-    is_general_products: {
-      type: Boolean,
-      default: true,
-    },
     currency: {
       type: String,
       enum: ["USD", "JOD", "SP"],
@@ -60,6 +56,10 @@ const userSchema = new mongoose.Schema(
     subscriptionExpiryDate: {
       type: Date,
       default: null, // null means no expiry (for superAdmin and regular users)
+    },
+    canSeeAllOrders: {
+      type: Boolean,
+      default: false,
     },
   },
   {

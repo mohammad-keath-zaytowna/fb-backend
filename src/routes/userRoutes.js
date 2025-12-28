@@ -34,7 +34,7 @@ router.patch(
   userController.updateUserStatus
 );
 
-// PATCH /users/:id - Update user fields (name, maxManagedUsers, is_general_products)
+// PATCH /users/:id - Update user fields (name, maxManagedUsers)
 router.patch(
   '/:id',
   validate(schemas.mongoId, 'params'),

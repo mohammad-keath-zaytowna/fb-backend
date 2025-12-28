@@ -56,15 +56,18 @@ exports.getOrders = catchAsync(async (req, res) => {
   // Build base query
   const queryObj = {};
 
-  // If regular user, only show their own orders
+  // If regular user, only show their own orders (unless they have canSeeAllOrders permission)
   if (req.user.role === 'user') {
-    queryObj.user = req.user._id;
-    if (!req.user.is_general_products) {
-      // Admin only sees orders they created
-      queryObj.createdByAdmin = req.user._id;
+    if (req.user.canSeeAllOrders && req.user.managerId) {
+      // User can see all orders from users under the same admin
+      const managedUsers = await User.find({ managerId: req.user.managerId }).select('_id');
+      const managedUserIds = managedUsers.map(u => u._id);
+      queryObj.user = { $in: [req.user._id, ...managedUserIds] };
+    } else {
+      // User can only see their own orders
+      queryObj.user = req.user._id;
     }
   } else if (req.user.role === 'admin') {
-    // Admin visibility depends on `is_general_products` flag
     // Admin sees orders from users they manage and themselves
     const managedUsers = await User.find({ managerId: req.user._id }).select('_id');
     const managedUserIds = managedUsers.map(u => u._id);
@@ -134,7 +137,11 @@ exports.getOrderById = catchAsync(async (req, res) => {
 
   // Check if user has permission to view this order
   const isAdmin = req.user && ['admin', 'superAdmin'].includes(req.user.role);
-  if (!isAdmin && order.user._id.toString() !== req.user._id.toString()) {
+  const isOrderOwner = order.user._id.toString() === req.user._id.toString();
+  const canSeeAllOrdersInGroup = req.user.role === 'user' && req.user.canSeeAllOrders &&
+    req.user.managerId && order.user.managerId?.toString() === req.user.managerId.toString();
+
+  if (!isAdmin && !isOrderOwner && !canSeeAllOrdersInGroup) {
     return ApiResponse.error(
       res,
       'You do not have permission to view this order',

@@ -16,28 +16,22 @@ exports.getProducts = catchAsync(async (req, res) => {
   if (!req.user || !["admin", "superAdmin"].includes(req.user.role)) {
     queryObj.status = { $ne: "deleted" };
   }
-  // Role-based visibility with per-admin `is_general_products` flag
   if (req.user) {
     if (req.user.role === "admin") {
-      // If admin disabled general products, show only products created by this admin
-      // default: show products for this admin
+      // Admin: show all products for this admin
       queryObj.admin = req.user._id;
-
     }
 
     if (req.user.role === "user") {
-      // Find manager settings
-      const manager = req.user.managerId
-        ? await require("../models/User").findById(req.user.managerId).select("is_general_products")
-        : null;
-
-      if (manager && !manager.is_general_products) {
-        // manager disallowed general products -> each user sees only products they created
-        queryObj.createdBy = req.user._id;
-      } else if (req.user.managerId) {
-        // default: show manager products
+      if (req.user.managerId) {
         queryObj.admin = req.user.managerId;
       }
+      // User: only show products where visibleToUsers is empty OR contains user ID
+      queryObj.$or = [
+        { visibleToUsers: [] },
+        { visibleToUsers: { $size: 0 } },
+        { visibleToUsers: req.user._id }
+      ];
     }
   }
 
@@ -136,6 +130,24 @@ exports.createProduct = catchAsync(async (req, res) => {
     productData.price = parseFloat(productData.price);
   }
 
+  // Parse visibleToUsers if provided
+  if (productData.visibleToUsers) {
+    if (typeof productData.visibleToUsers === "string") {
+      try {
+        productData.visibleToUsers = JSON.parse(productData.visibleToUsers);
+      } catch (e) {
+        productData.visibleToUsers = [];
+      }
+    }
+    // Ensure it's an array
+    if (!Array.isArray(productData.visibleToUsers)) {
+      productData.visibleToUsers = [];
+    }
+  } else {
+    // Default to empty array (all users)
+    productData.visibleToUsers = [];
+  }
+
   const product = await Product.create(productData);
 
   return ApiResponse.success(
@@ -211,6 +223,21 @@ exports.updateProduct = catchAsync(async (req, res) => {
   // Parse price to number if provided
   if (updateData.price) {
     updateData.price = parseFloat(updateData.price);
+  }
+
+  // Parse visibleToUsers if provided
+  if (updateData.visibleToUsers !== undefined) {
+    if (typeof updateData.visibleToUsers === "string") {
+      try {
+        updateData.visibleToUsers = JSON.parse(updateData.visibleToUsers);
+      } catch (e) {
+        updateData.visibleToUsers = [];
+      }
+    }
+    // Ensure it's an array
+    if (!Array.isArray(updateData.visibleToUsers)) {
+      updateData.visibleToUsers = [];
+    }
   }
 
   Object.assign(product, updateData);

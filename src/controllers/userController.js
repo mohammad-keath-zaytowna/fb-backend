@@ -141,21 +141,24 @@ exports.updateUser = catchAsync(async (req, res) => {
 
   // Only allow admin to update their own record, or superAdmin to update any
   if (req.user.role === 'admin' && req.user._id.toString() !== id) {
-    return ApiResponse.error(res, 'Not authorized to update this user', null, 403);
+    // Admin can update managed users' canSeeAllOrders permission
+    const targetUser = await User.findById(id);
+    if (!targetUser || targetUser.managerId?.toString() !== req.user._id.toString()) {
+      return ApiResponse.error(res, 'Not authorized to update this user', null, 403);
+    }
+    // Admin can only update canSeeAllOrders for managed users
+    if (Object.keys(updateData).some(key => key !== 'canSeeAllOrders')) {
+      return ApiResponse.error(res, 'Admins can only update canSeeAllOrders for managed users', null, 403);
+    }
   }
 
   // Only allow whitelisted fields to be updated
-  const allowed = ['name', 'maxManagedUsers', 'is_general_products', 'currency'];
+  const allowed = ['name', 'maxManagedUsers', 'currency', 'canSeeAllOrders'];
   allowed.forEach((field) => {
     if (field in updateData) {
       user[field] = updateData[field];
     }
   });
-
-  if (userType === 'admin' && updateData.is_general_products) {
-    await User.updateMany({ managerId: req.user._id }, { is_general_products: updateData.is_general_products })
-  }
-
 
   await user.save();
 
