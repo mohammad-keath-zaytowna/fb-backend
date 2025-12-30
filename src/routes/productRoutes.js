@@ -3,7 +3,7 @@ const productController = require("../controllers/productController");
 const { auth, permitRoles } = require("../middlewares/auth");
 const validate = require("../middlewares/validate");
 const schemas = require("../validations/schemas");
-const { upload, compressImage, cloudinaryUpload } = require("../middlewares/upload");
+const { upload, compressImage, localUpload } = require("../middlewares/upload");
 
 const router = express.Router();
 
@@ -27,8 +27,7 @@ router.post(
   auth,
   permitRoles("admin", "user"),
   upload.single("image"),
-  // compressImage,
-  cloudinaryUpload,
+  localUpload,
   (req, res, next) => {
     // Skip image validation if file is uploaded
     if (req.file) {
@@ -67,8 +66,7 @@ router.patch(
   permitRoles("admin", "superAdmin"),
   validate(schemas.mongoId, "params"),
   upload.single("image"),
-  // compressImage,
-  cloudinaryUpload,
+  localUpload,
   (req, res, next) => {
     // Skip image validation if file is uploaded
     if (req.file) {

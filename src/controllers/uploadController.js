@@ -8,13 +8,12 @@ const path = require('path');
  * @access  Private (admin, superAdmin)
  */
 exports.uploadImage = catchAsync(async (req, res) => {
-  if (!req.cloudinaryResult?.secure_url) {
+  if (!req.uploadResult?.secure_url) {
     return ApiResponse.error(res, 'No file uploaded', null, 400);
   }
 
   // Return the file URL/path
-  // In production, you might want to upload to cloud storage (AWS S3, Cloudinary, etc.)
-  const fileUrl =req.cloudinaryResult?.secure_url;
+  const fileUrl = req.uploadResult?.secure_url;
 
   return ApiResponse.success(
     res,

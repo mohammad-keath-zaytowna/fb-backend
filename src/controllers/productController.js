@@ -105,8 +105,8 @@ exports.createProduct = catchAsync(async (req, res) => {
   productData.createdBy = req.user._id;
 
   // If file is uploaded, use the file path, otherwise use the image URL from body
-  if (req.cloudinaryResult) {
-    productData.image = req.cloudinaryResult?.secure_url;
+  if (req.uploadResult) {
+    productData.image = req.uploadResult?.secure_url;
   }
 
   // Parse colors and sizes if they are strings
@@ -196,8 +196,8 @@ exports.updateProduct = catchAsync(async (req, res) => {
   const updateData = { ...req.body };
 
   // If file is uploaded, use the file path, otherwise keep existing image or use URL from body
-  if (req.cloudinaryResult) {
-    updateData.image = req.cloudinaryResult?.secure_url;
+  if (req.uploadResult) {
+    updateData.image = req.uploadResult?.secure_url;
   }
 
   // Parse colors and sizes if they are strings

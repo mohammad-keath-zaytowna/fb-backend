@@ -1,6 +1,6 @@
 const express = require("express");
 const uploadController = require("../controllers/uploadController");
-const { upload, compressImage, cloudinaryUpload } = require("../middlewares/upload");
+const { upload, compressImage, localUpload } = require("../middlewares/upload");
 const { auth, permitRoles } = require("../middlewares/auth");
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.post(
   permitRoles("admin", "superAdmin"),
   upload.single("image"),
   compressImage,
-  cloudinaryUpload,
+  localUpload,
   uploadController.uploadImage
 );
 
