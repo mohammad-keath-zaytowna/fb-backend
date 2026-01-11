@@ -6,8 +6,7 @@ const Joi = require('joi');
 const schemas = {
   // ============ AUTH SCHEMAS ============
   login: Joi.object({
-    email: Joi.string().email().required().messages({
-      'string.email': 'Please provide a valid email',
+    email: Joi.string().required().messages({
       'any.required': 'Email is required'
     }),
     password: Joi.string().required().messages({

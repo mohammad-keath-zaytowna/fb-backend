@@ -34,7 +34,6 @@ router.get(
 // PATCH /order/:id/status - Update order status (admin only)
 router.patch(
   '/:id/status',
-  permitRoles('admin', 'superAdmin'),
   validate(schemas.mongoId, 'params'),
   validate(schemas.updateOrderStatus),
   orderController.updateOrderStatus

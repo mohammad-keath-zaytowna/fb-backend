@@ -77,6 +77,7 @@ exports.createUser = catchAsync(async (req, res) => {
   if (userType === 'admin') {
     userData.managerId = req.user._id;
     userData.role = 'user';
+    userData.currency = req.user.currency
   } else if (userType === 'superAdmin') {
     userData.role = 'admin';
   }
