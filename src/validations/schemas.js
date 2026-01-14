@@ -121,6 +121,10 @@ const schemas = {
       'any.required': 'Price is required'
     }),
     description: Joi.string().allow('').optional(),
+    stock: Joi.alternatives().try(
+      Joi.number().integer().min(0),
+      Joi.string().pattern(/^\d+$/)
+    ).optional(),
     colors: Joi.alternatives().try(
       Joi.array().items(Joi.string()),
       Joi.string()
@@ -145,6 +149,10 @@ const schemas = {
       Joi.string().pattern(/^\d+(\.\d+)?$/)
     ).optional(),
     description: Joi.string().allow('').optional(),
+    stock: Joi.alternatives().try(
+      Joi.number().integer().min(0),
+      Joi.string().pattern(/^\d+$/)
+    ).optional(),
     colors: Joi.alternatives().try(
       Joi.array().items(Joi.string()),
       Joi.string()

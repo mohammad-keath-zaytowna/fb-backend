@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema(
       enum: ["USD", "JOD", "SP"],
       default: "JOD",
     },
+    stockManagement: {
+      type: Boolean,
+      default: false
+    },
     subscriptionExpiryDate: {
       type: Date,
       default: null, // null means no expiry (for superAdmin and regular users)

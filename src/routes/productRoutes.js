@@ -72,6 +72,11 @@ router.patch(
     if (req.file) {
       req.body.image = `/uploads/${req.file.filename}`;
     }
+
+    // LOG BEFORE VALIDATION
+    console.log('=== BEFORE JOI VALIDATION ===');
+    console.log('req.body.stock:', req.body.stock, 'Type:', typeof req.body.stock);
+
     // Validate other fields
     const schema = schemas.updateProduct;
     const { error, value } = schema.validate(req.body, {
@@ -79,6 +84,10 @@ router.patch(
       stripUnknown: true,
       allowUnknown: true,
     });
+
+    // LOG AFTER VALIDATION
+    console.log('=== AFTER JOI VALIDATION ===');
+    console.log('value.stock:', value?.stock, 'Type:', typeof value?.stock);
 
     if (error) {
       const errors = error.details.map((detail) => ({
