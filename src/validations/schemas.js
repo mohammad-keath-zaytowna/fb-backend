@@ -94,7 +94,8 @@ const schemas = {
     name: Joi.string().optional(),
     maxManagedUsers: Joi.number().integer().min(0).optional(),
     currency: Joi.string().valid('USD', 'JOD', 'SP').optional(),
-    canSeeAllOrders: Joi.boolean().optional()
+    canSeeAllOrders: Joi.boolean().optional(),
+    stockManagement: Joi.boolean().optional()
   }),
 
   updateCurrency: Joi.object({

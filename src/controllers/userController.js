@@ -136,6 +136,7 @@ exports.updateUser = catchAsync(async (req, res) => {
   const updateData = { ...req.body };
 
   const userType = req.user.role;
+  
 
   const user = await User.findById(id);
   if (!user) return ApiResponse.error(res, 'User not found', null, 404);
@@ -154,12 +155,13 @@ exports.updateUser = catchAsync(async (req, res) => {
   }
 
   // Only allow whitelisted fields to be updated
-  const allowed = ['name', 'maxManagedUsers', 'currency', 'canSeeAllOrders'];
+  const allowed = ['name', 'maxManagedUsers', 'currency', 'canSeeAllOrders', 'stockManagement'];
   allowed.forEach((field) => {
     if (field in updateData) {
       user[field] = updateData[field];
     }
   });
+  
 
   await user.save();
 

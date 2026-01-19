@@ -43,7 +43,7 @@ const compressImage = async (req, res, next) => {
       return next();
     }
 
-    console.log(`Image size: ${(fileSize / 1024 / 1024).toFixed(2)}MB - compressing...`);
+    
 
     // Start with quality 80 and reduce if needed
     let quality = 80;
@@ -69,7 +69,7 @@ const compressImage = async (req, res, next) => {
     fs.writeFileSync(filePath, compressedBuffer);
     req.file.size = compressedSize;
 
-    console.log(`Image compressed to ${(compressedSize / 1024 / 1024).toFixed(2)}MB (quality: ${quality})`);
+    
 
     next();
   } catch (error) {

@@ -74,8 +74,8 @@ router.patch(
     }
 
     // LOG BEFORE VALIDATION
-    console.log('=== BEFORE JOI VALIDATION ===');
-    console.log('req.body.stock:', req.body.stock, 'Type:', typeof req.body.stock);
+    
+    
 
     // Validate other fields
     const schema = schemas.updateProduct;
@@ -86,8 +86,7 @@ router.patch(
     });
 
     // LOG AFTER VALIDATION
-    console.log('=== AFTER JOI VALIDATION ===');
-    console.log('value.stock:', value?.stock, 'Type:', typeof value?.stock);
+   
 
     if (error) {
       const errors = error.details.map((detail) => ({

@@ -95,6 +95,7 @@ exports.getProductById = catchAsync(async (req, res) => {
  */
 exports.createProduct = catchAsync(async (req, res) => {
   const productData = { ...req.body };
+ 
   const userRole = req.user.role;
   if (userRole === "user") {
     productData.admin = req.user.managerId;
@@ -132,14 +133,14 @@ exports.createProduct = catchAsync(async (req, res) => {
 
   // Parse stock to number if provided
   if (productData.stock !== undefined) {
-    console.log('Stock BEFORE parsing:', productData.stock, 'Type:', typeof productData.stock);
+   
     productData.stock = parseInt(productData.stock, 10);
-    console.log('Stock AFTER parseInt:', productData.stock, 'Type:', typeof productData.stock);
+    
     if (isNaN(productData.stock)) {
-      console.log('Stock was NaN, setting to 0');
+      
       productData.stock = 0;
     }
-    console.log('Stock FINAL value:', productData.stock);
+    
   }
 
   // Parse visibleToUsers if provided
@@ -207,8 +208,7 @@ exports.updateProduct = catchAsync(async (req, res) => {
 
   const updateData = { ...req.body };
 
-  console.log("updateData", updateData);
-
+  
   // If file is uploaded, use the file path, otherwise keep existing image or use URL from body
   if (req.uploadResult) {
     updateData.image = req.uploadResult?.secure_url;
@@ -241,14 +241,14 @@ exports.updateProduct = catchAsync(async (req, res) => {
 
   // Parse stock to number if provided
   if (updateData.stock !== undefined) {
-    console.log('Stock BEFORE parsing:', updateData.stock, 'Type:', typeof updateData.stock);
+    
     updateData.stock = parseInt(updateData.stock, 10);
-    console.log('Stock AFTER parseInt:', updateData.stock, 'Type:', typeof updateData.stock);
+    
     if (isNaN(updateData.stock)) {
-      console.log('Stock was NaN, setting to 0');
+      
       updateData.stock = 0;
     }
-    console.log('Stock FINAL value:', updateData.stock);
+    
   }
 
   // Parse visibleToUsers if provided
@@ -266,7 +266,7 @@ exports.updateProduct = catchAsync(async (req, res) => {
     }
   }
 
-  console.log("updateData", updateData);
+  
 
   Object.assign(product, updateData);
   await product.save();

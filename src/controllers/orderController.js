@@ -26,6 +26,49 @@ exports.createOrder = catchAsync(async (req, res) => {
       400
     );
   }
+  let isStockManaged = false;
+  if (req.user.role === 'user') {
+    const admin = await User.findById(req.user.managerId);
+    if (!admin) {
+      return ApiResponse.error(
+        res,
+        'Admin not found',
+        null,
+        404
+      );
+    }
+    isStockManaged = admin.stockManagement;
+  } else if (req.user.role === 'admin') {
+    isStockManaged = req.user.stockManagement;
+  }
+  if (isStockManaged) {
+    Promise.all(
+      req.body.items.map(async (item) => {
+        const product = await Product.findById(item.prod_id);
+        if (!product) {
+          return ApiResponse.error(
+            res,
+            'Product not found',
+            null,
+            404
+          );
+        }
+        if (product.stock < item.count) {
+          return ApiResponse.error(
+            res,
+            'Not enough stock',
+            null,
+            400
+          );
+        }
+        await Product.updateOne(
+          { _id: item.prod_id },
+          { $inc: { stock: -item.count } }
+        );
+      })
+    );
+
+  }
 
   // Calculate total from items, shipping, and discount
   const subtotal = req.body.items.reduce((sum, item) => sum + (item.price * item.count), 0);
